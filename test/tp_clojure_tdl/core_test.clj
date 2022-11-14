@@ -8,14 +8,14 @@
 
 (deftest b-test
   (testing "If the Inut file is not empty then return true")
-  (is (= true (validate_file "data")))
+  (is (= true (is_empty_name "data")))
 )
 
 (deftest c-test
   (testing "If the Inut file is empty then return False")
-  (is (= false (validate_file "")))
+  (is (= false (is_empty_name "")))
 )
-    
+
 (deftest d-test
   (testing "If we receive file with extension .json then, validate_extension_file return True"
     (is (= true (validate_extension_file "arch.json")))
@@ -26,4 +26,23 @@
   (testing "If we receive file without extension .json then, validate_extension_file return False"
     (is (= false (validate_extension_file "arch.html")))
   )
+)
+
+(deftest f-test
+  (testing "If file not exists then return false"
+    (is (= false (file_exists "prueba2.txt")))
+  )  
+)
+
+
+(deftest g-test
+  (testing "If file exists then return true"
+    (is (= true (file_exists "/home/rogger/Documents/tp_clojure_tdl/doc/prueba.txt")))
+  )  
+)
+
+(deftest h-test
+  (testing "It verify that the file not exists and not equal to true"
+    (is (not= true (file_exists "pruebsa.txt")))
+  ) 
 )
