@@ -37,12 +37,24 @@
 
 (deftest g-test
   (testing "If file exists then return true"
-    (is (= true (file_exists "/home/rogger/Documents/tp_clojure_tdl/doc/prueba.txt")))
+    (is (= true (file_exists "/home/rogger/prueba.txt")))
   )  
 )
 
 (deftest h-test
   (testing "It verify that the file not exists and not equal to true"
     (is (not= true (file_exists "pruebsa.txt")))
+  ) 
+)
+
+(deftest i-test
+  (testing "I want to remove the character '[' and ']'"
+    (let [line (atom {:value "casa[]"})
+          myVect (vector 
+         {:character "]" :newCharacter ""} 
+         {:character "[" :newCharacter ""}
+        )] (do
+             (remove_character myVect line) 
+             (is (= "casa" (get @line :value)))))
   ) 
 )
