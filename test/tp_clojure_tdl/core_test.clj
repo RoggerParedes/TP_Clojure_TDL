@@ -58,3 +58,12 @@
              (is (= "casa" (get @line :value)))))
   ) 
 )
+
+
+(deftest reemplazar-en-cadena-test
+  (testing "reemplazar-en-cadena recibe un string a modificar, un substring a reemplazar y un string de reemplazo"
+    (is (= "HÑÑa" (reemplazar-en-cadena "Hola" "ol" "ÑÑ")))
+    (is (= "Hola" (reemplazar-en-cadena "Hola" "pa" "ÑÑ")))
+    (is (= "167083000" (reemplazar-en-cadena "167.83..." "." "0")))
+    )
+  )

@@ -64,6 +64,14 @@
   
 )
 
+(defn reemplazar-en-cadena [cadena a-reemplazar reemplazo]
+  (clojure.string/replace cadena
+                          (re-pattern (if (< 1 (count a-reemplazar))
+                                        a-reemplazar
+                                        (str "[" a-reemplazar "]")
+                                        ))
+                          reemplazo))
+
 (defn -main
   [& args]
   (init_service)
