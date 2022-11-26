@@ -64,13 +64,13 @@
   
 )
 
-(defn reemplazar-en-cadena [cadena a-reemplazar reemplazo]
-  (clojure.string/replace cadena
-                          (re-pattern (if (< 1 (count a-reemplazar))
-                                        a-reemplazar
-                                        (str "[" a-reemplazar "]")
+(defn replace-in-str [line to-be-replaced replacement]
+  (clojure.string/replace line
+                          (re-pattern (if (< 1 (count to-be-replaced))
+                                        to-be-replaced
+                                        (str "[" to-be-replaced "]")
                                         ))
-                          reemplazo))
+                          replacement))
 
 (defn -main
   [& args]

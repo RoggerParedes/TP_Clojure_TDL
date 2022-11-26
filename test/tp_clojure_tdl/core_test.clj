@@ -60,10 +60,10 @@
 )
 
 
-(deftest reemplazar-en-cadena-test
-  (testing "reemplazar-en-cadena recibe un string a modificar, un substring a reemplazar y un string de reemplazo"
-    (is (= "HÑÑa" (reemplazar-en-cadena "Hola" "ol" "ÑÑ")))
-    (is (= "Hola" (reemplazar-en-cadena "Hola" "pa" "ÑÑ")))
-    (is (= "167083000" (reemplazar-en-cadena "167.83..." "." "0")))
+(deftest replace-in-str-test
+  (testing "replace-in-str replace a substring for a given new string"
+    (is (= "HÑÑa" (replace-in-str "Hola" "ol" "ÑÑ")))
+    (is (= "Hola" (replace-in-str "Hola" "pa" "ÑÑ")))
+    (is (= "167083000" (replace-in-str "167.83..." "." "0")))
     )
   )
