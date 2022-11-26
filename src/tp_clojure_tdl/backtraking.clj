@@ -1,5 +1,6 @@
 
-(defn print_grid [arr] 
+(defn print_grid [arr]
+  (run! println arr)
   )
 
 ;should return true or false
