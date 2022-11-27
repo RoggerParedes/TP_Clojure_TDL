@@ -66,3 +66,10 @@
     (is (false? (is-in-square grid 8 8 1)))
     )
   )
+
+(deftest replace-element-test
+  (testing "Replace the element placed in grid[row][col] for the given value"
+    ;row 2: [0 8 7 0 0 0 0 3 1]
+    (is (=  [0 8 7 0 9 0 0 3 1] (get (replace-element grid 2 4 9) 2)))
+    (is (=  [1 8 7 0 0 0 0 3 1] (get (replace-element grid 2 0 1) 2)))
+    ))

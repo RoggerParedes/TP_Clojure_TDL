@@ -15,9 +15,8 @@
     (vec (flatten (mapv #(subvec % i-col (+ i-col 3)) (subvec grid  i-row (+ i-row 3))))
          ))
   )
-  (defn print_grid [grid]
-    (run! println grid)
-  )
+(defn print_grid [grid]
+    (run! println grid))
 
 ;should return true or false
 (defn find_empty_location [grid l]
@@ -42,6 +41,10 @@
 
 (defn is-in-square [grid row col num]
   (is-in (get-square grid row col) num))
+
+(defn replace-element [grid row col num]
+  (vec (map-indexed (fn [idx, itm] (if (= idx row) (assoc itm col num) itm)) grid))
+  )
 
 ;should return true or false
 (comment (defn used_in_col [grid col num]
