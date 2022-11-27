@@ -33,3 +33,10 @@
     (is (= [2 5 0 0 7 4 3 0 0] (get-square grid 8 8)))
     )
   )
+
+(deftest is-in-test
+  (testing "Checks if an element is in an array"
+    (is (true? (is-in [1 2 3 5] 5)))
+    (is (false? (is-in [1 2 3 5] 4)))
+    )
+  )

@@ -6,6 +6,10 @@
 (defn get-row [grid row]
   (get grid row))
 
+(defn is-in [v elem]
+  (if (some #{elem} v) true false)
+  )
+
 (defn get-square [grid row col]
   (let[i-row (* 3 (quot row 3)), i-col (* 3 (quot col 3))]
     (vec (flatten (mapv #(subvec % i-col (+ i-col 3)) (subvec grid  i-row (+ i-row 3))))
