@@ -1,6 +1,18 @@
+(ns tp-clojure-tdl.backtracking)
 
-(defn print_grid [arr]
-  (run! println arr)
+(defn get-col [grid col]
+  (map #(get % col) grid))
+
+(defn get-row [grid row]
+  (get grid row))
+
+(defn get-square [grid row col]
+  (let[i-row (* 3 (quot row 3)), i-col (* 3 (quot col 3))]
+    (vec (flatten (mapv #(subvec % i-col (+ i-col 3)) (subvec grid  i-row (+ i-row 3))))
+         ))
+  )
+  (defn print_grid [grid]
+    (run! println grid)
   )
 
 ;should return true or false
@@ -59,14 +71,16 @@
    )
   )
 
-(def grid [[3 0 6 5 0 8 4 0 0]
-           [5 2 0 0 0 0 0 0 0]
-           [0 8 7 0 0 0 0 3 1]
-           [0 0 3 0 1 0 0 8 0]
-           [9 0 0 8 6 3 0 0 5]
-           [0 5 0 0 9 0 6 0 0]
-           [1 3 0 0 0 0 2 5 0]
-           [0 0 0 0 0 0 0 7 4]
-           [0 0 5 2 0 6 3 0 0]])
+(comment
+  (def grid [[3 0 6 5 0 8 4 0 0]
+             [5 2 0 0 0 0 0 0 0]
+             [0 8 7 0 0 0 0 3 1]
+             [0 0 3 0 1 0 0 8 0]
+             [9 0 0 8 6 3 0 0 5]
+             [0 5 0 0 9 0 6 0 0]
+             [1 3 0 0 0 0 2 5 0]
+             [0 0 0 0 0 0 0 7 4]
+             [0 0 5 2 0 6 3 0 0]])
+  )
 
 

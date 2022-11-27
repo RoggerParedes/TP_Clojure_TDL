@@ -2,10 +2,6 @@
   (:require [clojure.test :refer :all]
             [tp-clojure-tdl.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 1 1))))
-
 (deftest b-test
   (testing "If the Inut file is not empty then return true")
   (is (= true (is_empty_name "data")))
@@ -59,6 +55,14 @@
   ) 
 )
 
+
+(deftest replace-in-str-test
+  (testing "replace-in-str replace a substring for a given new string"
+    (is (= "HÑÑa" (replace-in-str "Hola" "ol" "ÑÑ")))
+    (is (= "Hola" (replace-in-str "Hola" "pa" "ÑÑ")))
+    (is (= "167083000" (replace-in-str "167.83..." "." "0")))
+    )
+  )
 
 (deftest replace-in-str-test
   (testing "replace-in-str replace a substring for a given new string"
