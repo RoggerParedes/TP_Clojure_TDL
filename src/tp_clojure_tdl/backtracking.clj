@@ -25,14 +25,6 @@
       (when (== (get-in grid [row col]) 0) 
         (def l (assoc l 0 row 1 col))))))
 
-;should return true or false
-(comment (defn used_in_box [grid row col num]
-           (for [i (range 3)]
-             (for [j (range 3)]
-               (when (== (get-in grid [(+ i row) (+ j col)]) num)
-                 (def used true)))))
-         )
-
 (defn is-in-row [grid row num]
   (is-in (get-row grid row) num))
 
@@ -46,21 +38,13 @@
   (vec (map-indexed (fn [idx, itm] (if (= idx row) (assoc itm col num) itm)) grid))
   )
 
-;should return true or false
-(comment (defn used_in_col [grid col num]
-           {:pre [(def used (vector))
-                  (for [row (range 9)]
-                    (conj used (== (get-in grid [row col]) num)))]}
-           (used))
+(defn is-safe? [grid row col num]
+  (not (or
+         (is-in-row grid row num)
+         (is-in-col grid col num)
+         (is-in-square grid row col num)
          )
-
-(defn check_location_is_safe [grid row col num]
-  (and (not (is-in-row grid row num))
-       (not (is-in-col grid col num))
-       (not (is-in-square grid row col num)))
-  )
-
-
+       ))
 
 (defn solve_sudoku[grid]
   ; l keeps record of the row and col in find_empty_location
