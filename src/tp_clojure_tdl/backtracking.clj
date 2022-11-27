@@ -54,50 +54,42 @@
 
 (defn get-element [grid row col]
   ((grid row) col))
-(defn backtracking-sudoku-solver[grid row col]
+(defn backtracking-sudoku-solver [grid row col]
   (
     cond
-    ; último casillero! devuelvo la grilla ya completa
+    ; We have reached the 8th row and 9th column, so it's finished!
     (and (= row (- N 1)) (= col N)) grid
-    ; última columna? cambio de línea
+    ; If column value becomes 9 we move to next row, and column start from 0
     (= col N) (backtracking-sudoku-solver grid (inc row) 0)
-    ; casillero no vacío? busco siguiente libre
+    ;  if the current position already contains value >0, we go for next column
+    (pos? (get-element grid row col)) (backtracking-sudoku-solver grid row (inc col))
     :else
-    "nada"
-
-
-
-
+    ; Recursive function to test every posible value, starting from 1
+    ((fn try-number [num]
+       (cond
+         ; if num > N, then this solution isn't viable
+         (> num N) nil
+         ; if is a viable to insert num in position, tries that path.
+         ; If the path is a dead end, it backtracks and try the next number
+         ; If is not posible to insert num, starts again with the next number
+         (is-safe? grid row col num) (
+                                       let [result (backtracking-sudoku-solver
+                                                     (replace-element grid row col num) row col)]
+                                       (if (nil? result) (try-number (inc num)) result))
+         :else
+         (try-number (inc num))
+         )
+       ) 1)
     )
-
-
   )
 
 
 (defn sudoku-solver [grid]
-  (backtracking-sudoku-solver grid 0 0)
-  ; l keeps record of the row and col in find_empty_location
-  ;((def l [0 0])
-   ;if there is no unassaigned location, it ends
-   ;(not (find_empty_location grid l))
 
-   ;row = l [0]
-   ;col = l[1]
-
-   ;for num in range(1, 10):
-		
-		;if(check_location_is_safe(arr,
-		;				row, col, num)):
-   
-		;	arr[row][col]= num
-
-		;	if(solve_sudoku(arr)):
-		;		return True
-
-		;	arr[row][col] = 0
-				
-	;return False
-   )
+  (let [solution (backtracking-sudoku-solver grid 0 0)]
+    (if (nil? solution) "Error: not solvable" solution)
+    )
+  )
 
 
 (comment
