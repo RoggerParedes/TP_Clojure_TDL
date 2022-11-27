@@ -48,3 +48,11 @@
     (is (false? (is-in-row grid 1 3)))
     )
   )
+
+(deftest is-in-col-test
+  (testing "Checks if a num is in certain column"
+    ;col 0:  [3 5 0 0 9 0 1 0 0]
+    (is (true? (is-in-col grid 0 9)))
+    (is (false? (is-in-col grid 0 8)))
+    )
+  )
