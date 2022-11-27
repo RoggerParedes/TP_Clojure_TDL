@@ -56,3 +56,13 @@
     (is (false? (is-in-col grid 0 8)))
     )
   )
+
+(deftest is-in-col-test
+  (testing "Checks if a num is in certain column"
+    ;last square :[ 2 5 0
+    ;               0 7 4
+    ;               3 0 0]
+    (is (true? (is-in-square grid 8 8 4)))
+    (is (false? (is-in-square grid 8 8 1)))
+    )
+  )

@@ -27,11 +27,12 @@
         (def l (assoc l 0 row 1 col))))))
 
 ;should return true or false
-(defn used_in_box [grid row col num]
-  (for [i (range 3)]
-    (for [j (range 3)]
-      (when (== (get-in grid [(+ i row) (+ j col)]) num)
-        (def used true)))))
+(comment (defn used_in_box [grid row col num]
+           (for [i (range 3)]
+             (for [j (range 3)]
+               (when (== (get-in grid [(+ i row) (+ j col)]) num)
+                 (def used true)))))
+         )
 
 (defn is-in-row [grid row num]
   (is-in (get-row grid row) num))
@@ -39,17 +40,22 @@
 (defn is-in-col [grid col num]
   (is-in (get-col grid col) num))
 
+(defn is-in-square [grid row col num]
+  (is-in (get-square grid row col) num))
+
 ;should return true or false
-(defn used_in_col [grid col num]
-  {:pre [(def used (vector)) 
-         (for [row (range 9)]
-           (conj used (== (get-in grid [row col]) num)))]}
-  (used))
+(comment (defn used_in_col [grid col num]
+           {:pre [(def used (vector))
+                  (for [row (range 9)]
+                    (conj used (== (get-in grid [row col]) num)))]}
+           (used))
+         )
 
 (defn check_location_is_safe [grid row col num]
   (and (not (is-in-row grid row num))
        (not (is-in-col grid col num))
-       (not (used_in_box grid (- row (mod row 3)) (- col (mod col 3)) num))))
+       (not (is-in-square grid row col num)))
+  )
 
 
 
