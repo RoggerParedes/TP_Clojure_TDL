@@ -1,20 +1,25 @@
 (ns tp-clojure-tdl.backtracking)
 
+(def N 9)
 (defn get-col [grid col]
   (map #(get % col) grid))
 
 (defn get-row [grid row]
   (get grid row))
 
-(defn is-in [v elem]
-  (if (some #{elem} v) true false)
-  )
-
 (defn get-square [grid row col]
   (let[i-row (* 3 (quot row 3)), i-col (* 3 (quot col 3))]
     (vec (flatten (mapv #(subvec % i-col (+ i-col 3)) (subvec grid  i-row (+ i-row 3))))
          ))
   )
+
+(defn is-in [v elem]
+  (if (some #{elem} v) true false)
+  )
+
+(defn get-element [grid row col]
+  ((grid row) col))
+
 (defn print_grid [grid]
     (run! println grid))
 
@@ -46,11 +51,35 @@
          )
        ))
 
-(defn solve_sudoku[grid]
+
+(defn get-element [grid row col]
+  ((grid row) col))
+(defn backtracking-sudoku-solver[grid row col]
+  (
+    cond
+    ; último casillero! devuelvo la grilla ya completa
+    (and (= row (- N 1)) (= col N)) grid
+    ; última columna? cambio de línea
+    (= col N) (backtracking-sudoku-solver grid (inc row) 0)
+    ; casillero no vacío? busco siguiente libre
+    :else
+    "nada"
+
+
+
+
+    )
+
+
+  )
+
+
+(defn sudoku-solver [grid]
+  (backtracking-sudoku-solver grid 0 0)
   ; l keeps record of the row and col in find_empty_location
-  ((def l [0 0])
+  ;((def l [0 0])
    ;if there is no unassaigned location, it ends
-   (not (find_empty_location grid l))
+   ;(not (find_empty_location grid l))
 
    ;row = l [0]
    ;col = l[1]
@@ -69,7 +98,7 @@
 				
 	;return False
    )
-  )
+
 
 (comment
   (def grid [[3 0 6 5 0 8 4 0 0]

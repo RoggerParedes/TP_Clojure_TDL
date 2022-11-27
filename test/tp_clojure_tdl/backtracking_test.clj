@@ -90,3 +90,12 @@
     (is (false? (is-safe? grid 0 1 2))) ; number in the same column
     (is (false? (is-safe? grid 0 1 7))) ; number in the same square
     ))
+
+(deftest get-element-test
+  (testing "Get the element in grid[row][col]"
+    ; row 0: [3 0 6 5 0 8 4 0 0]
+    (is (= 3 (get-element grid 0 0)))
+    ; row 2: [0 8 7 0 0 0 0 3 1]
+    (is (= 8 (get-element grid 2 1)))
+    )
+  )
