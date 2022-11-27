@@ -33,8 +33,9 @@
       (when (== (get-in grid [(+ i row) (+ j col)]) num)
         (def used true)))))
 
-(defn used_in_row [grid row num]
-  (some #{num} (get grid row)))
+(defn is-in-row [grid row num]
+  (is-in (get-row grid row) num))
+
 
 ;should return true or false
 (defn used_in_col [grid col num]
@@ -44,7 +45,7 @@
   (used))
 
 (defn check_location_is_safe [grid row col num]
-  (and (not (used_in_row grid row num))
+  (and (not (is-in-row grid row num))
        (not (used_in_col grid col num))
        (not (used_in_box grid (- row (mod row 3)) (- col (mod col 3)) num))))
 

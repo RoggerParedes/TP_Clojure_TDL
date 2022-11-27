@@ -40,3 +40,11 @@
     (is (false? (is-in [1 2 3 5] 4)))
     )
   )
+
+(deftest is-in-row-test
+  (testing "Checks if a num is in certain row"
+    ;row 1: [5 2 0 0 0 0 0 0 0]
+    (is (true? (is-in-row grid 1 2)))
+    (is (false? (is-in-row grid 1 3)))
+    )
+  )
