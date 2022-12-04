@@ -5,6 +5,8 @@
   (:require [clojure.core.async
              :as a
              :refer [>! <! put! go-loop chan]])
+   (:require [tp-clojure-tdl.backtracking 
+              :refer backtracking ])
 )
 
 (defn validate_extension_file [name_file]
@@ -77,6 +79,11 @@
     )
   )
 )
+
+(def linea "167.83...|3...5...8|.8....4..|....2....|..5...7..|6...3...2|.2...796.|9.6...2..|.4...2..3")
+(def blanco ".")
+(def lineaDepurada (re-seq (re-pattern (str "[\\d" blanco "]")) linea))
+(println (into (vector) (map #(into (vector) %) (partition 9 lineaDepurada))))
 
 (defn init_service [] 
   
