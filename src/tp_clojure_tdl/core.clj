@@ -72,6 +72,13 @@
                                         ))
                           replacement))
 
+(defn clear-line [line]
+  (let [new-line (replace-in-str line "." "0")]
+    (apply str (re-seq (re-pattern "[\\d]") new-line))
+    )
+  )
+
+
 (defn -main
   [& args]
   (init_service)
