@@ -2,6 +2,9 @@
   (:gen-class)
   (:require [clojure.java.io :as io])
   (:require [clojure.string :as string])
+  (:require [clojure.core.async
+             :as a
+             :refer [>! <! put! go-loop chan]])
 )
 
 (defn validate_extension_file [name_file]
@@ -18,6 +21,31 @@
     false
   )
 )
+
+(def chan_create_file (chan) )
+
+(def chan_resolve_data (chan) )
+
+(def  thread_1
+  (future 
+    ( go-loop []
+     (let [x (<! chan_resolve_data)]
+       (Thread/sleep 1000) 
+       (println x)
+       (>! chan_create_file "IN: te mando esto")
+       (recur))
+     )))
+
+(def  thread_2
+  (future
+    ( go-loop [] 
+     (let [x (<! chan_create_file)] 
+       (Thread/sleep 1000) 
+       (println x)
+       (spit "result.txt" (str x "\n") :append true)
+       (recur))
+     ))
+  )
 
 (defn file_exists [name_file]
   (if (= true (.exists (io/file name_file)) ) true false)
@@ -61,7 +89,6 @@
             )
         )
     )
-  
 )
 
 (defn replace-in-str [line to-be-replaced replacement]
@@ -77,3 +104,12 @@
   (init_service)
 )
 ;;/home/rogger/Documents/tp_clojure_tdl/doc/prueba.txt
+
+;;(defn -main
+  ;;[& args]
+  ;;(println "Inicio") 
+   ;;(put! chan_resolve_data "hola2")
+   ;;(println "Fin")
+;;)
+
+;;(-main)
