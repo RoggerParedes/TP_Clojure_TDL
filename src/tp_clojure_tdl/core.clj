@@ -106,6 +106,22 @@
                                         ))
                           replacement))
 
+(defn clear-line [line]
+  (let [new-line (replace-in-str line "." "0")]
+    (apply str (re-seq (re-pattern "[\\d]") new-line))
+    )
+  )
+
+(defn grid-from-line [line]
+  (let [new-line (clear-line line)]
+    (if (= 81 (count new-line))
+      (let [seq-num (map #(Character/digit % 10) (seq new-line))]
+        (into (vector) (map #(into (vector) %) (partition 9 seq-num))))
+      nil)
+    )
+  )
+
+
 (defn -main
   [& args]
   (init_service)
