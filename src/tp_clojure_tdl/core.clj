@@ -6,7 +6,7 @@
              :as a
              :refer [>! <! put! go-loop chan]])
    (:require [tp-clojure-tdl.backtracking 
-              :refer backtracking ])
+              :refer :all ])
 )
 
 (defn validate_extension_file [name_file]
@@ -32,9 +32,8 @@
   (future 
     ( go-loop []
      (let [x (<! chan_resolve_data)]
-       (Thread/sleep 1000) 
-       (println x)
-       (>! chan_create_file "IN: te mando esto")
+       ;(Thread/sleep 1000) 
+       (>! chan_create_file x)
        (recur))
      )))
 
@@ -42,9 +41,8 @@
   (future
     ( go-loop [] 
      (let [x (<! chan_create_file)] 
-       (Thread/sleep 1000) 
-       (println x)
-       (spit "result.txt" (str x "\n") :append true)
+       ;(Thread/sleep 1000) 
+       (spit "solutions.txt" (str x "\n") :append true)
        (recur))
      ))
   )
@@ -53,7 +51,8 @@
   (if (= true (.exists (io/file name_file)) ) true false)
 )
 
-(def line (atom {:value "s[]"}))
+(def line (atom {:value ""}))
+(def matrix (atom {:value []}))
 
 (defn remove_character_ [a b c] 
   (swap! c assoc :value (string/replace (@c :value) a b)))
@@ -69,34 +68,6 @@
 (def vector_array (vector 
          {:character "]" :newCharacter ""} 
          {:character "[" :newCharacter ""}))
-
-(defn read_line [nameFile]
-  (with-open [rdr (io/reader nameFile)]
-    (doseq [line_ (line-seq rdr)]
-      (swap! line assoc :value line_)
-      (remove_character vector_array line)
-      (println (string/split (get @line :value) #" "))
-    )
-  )
-)
-
-(def linea "167.83...|3...5...8|.8....4..|....2....|..5...7..|6...3...2|.2...796.|9.6...2..|.4...2..3")
-(def blanco ".")
-(def lineaDepurada (re-seq (re-pattern (str "[\\d" blanco "]")) linea))
-(println (into (vector) (map #(into (vector) %) (partition 9 lineaDepurada))))
-
-(defn init_service [] 
-  
-    ( loop []
-        (println "Ingrese la ruta del Archivo:")
-        (let [document (read-line) validate (is_empty_name document)] 
-            (if (true? (and validate (file_exists document)))
-              (read_line document)
-              (do (println "Ruta invalida") (recur))
-            )
-        )
-    )
-)
 
 (defn replace-in-str [line to-be-replaced replacement]
   (clojure.string/replace line
@@ -116,11 +87,34 @@
   (let [new-line (clear-line line)]
     (if (= 81 (count new-line))
       (let [seq-num (map #(Character/digit % 10) (seq new-line))]
-        (into (vector) (map #(into (vector) %) (partition 9 seq-num))))
+        (swap! matrix assoc :value (into (vector) (map #(into (vector) %) (partition 9 seq-num)))))
       nil)
     )
   )
 
+(defn read_line [nameFile]
+  (with-open [rdr (io/reader nameFile)]
+    (doseq [line_ (line-seq rdr)]
+      (swap! line assoc :value line_)
+      (remove_character vector_array line)
+      (grid-from-line  (get @line :value))
+      (put! chan_resolve_data  (sudoku-solver (get @matrix :value)))
+    )
+  )
+)
+
+(defn init_service [] 
+  
+    ( loop []
+        (println "Ingrese la ruta del Archivo:")
+        (let [document (read-line) validate (is_empty_name document)] 
+            (if (true? (and validate (file_exists document)))
+              (read_line document)
+              (do (println "Ruta invalida") (recur))
+            )
+        )
+    )
+)
 
 (defn -main
   [& args]

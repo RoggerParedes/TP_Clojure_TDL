@@ -102,7 +102,7 @@
 
 (deftest sudoku-solver-test
   (testing "Testing the solver")
-  (comment Grilla 1
+  (comment
            [[3 0 6 5 0 8 4 0 0]
             [5 2 0 0 0 0 0 0 0]
             [0 8 7 0 0 0 0 3 1]
