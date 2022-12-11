@@ -24,24 +24,24 @@
   )
 )
 
-(def chan_create_file (chan) )
+(def channel_create_file (chan) )
 
-(def chan_resolve_data (chan) )
+(def channel_resolve_data (chan) )
 
 (def  thread_1
   (future 
     ( go-loop []
-     (let [x (<! chan_resolve_data)]
+     (let [x (<! channel_resolve_data)]
        ;(Thread/sleep 1000) 
-       (>! chan_create_file x)
+       (>! channel_create_file x)
        (recur))
      )))
 
 (def  thread_2
   (future
     ( go-loop [] 
-     (let [x (<! chan_create_file)] 
-       ;(Thread/sleep 1000) 
+     (let [x (<! channel_create_file)] 
+       ;(Thread/sleep 1000)
        (spit "solutions.txt" (str x "\n") :append true)
        (recur))
      ))
@@ -92,13 +92,33 @@
     )
   )
 
+(defn format-sudoku-line [arr]
+  (let [line (mapv #(if (zero? %) " " %) arr)]
+    (vec (flatten (conj (subvec line  0 3) '| (subvec line  3 6) '| (subvec line  6 9))))))
+
+(defn print-grid [grid channel]
+  (loop [i 0]
+    (when (< i N)
+      (when (and (zero? (mod i 3)) (pos? i)) 
+        (let [separator (vec (repeat 11 '-))]
+          (println separator)
+          (put! channel separator)))
+      (println (format-sudoku-line (grid i)))
+      (put! channel (format-sudoku-line (grid i)))
+      (recur (inc i)))))
+
 (defn read_line [nameFile]
   (with-open [rdr (io/reader nameFile)]
     (doseq [line_ (line-seq rdr)]
       (swap! line assoc :value line_)
       (remove_character vector_array line)
-      (grid-from-line  (get @line :value))
-      (put! chan_resolve_data  (sudoku-solver (get @matrix :value)))
+      (grid-from-line (get @line :value))
+      (let [resolution (sudoku-solver (get @matrix :value))]
+        (print-grid resolution channel_resolve_data)
+        (let [separator (vec (repeat 15 '*))] 
+          (println separator)
+          (put! channel_resolve_data separator)))
+      ;)
     )
   )
 )
@@ -120,13 +140,3 @@
   [& args]
   (init_service)
 )
-;;/home/rogger/Documents/tp_clojure_tdl/doc/prueba.txt
-
-;;(defn -main
-  ;;[& args]
-  ;;(println "Inicio") 
-   ;;(put! chan_resolve_data "hola2")
-   ;;(println "Fin")
-;;)
-
-;;(-main)
