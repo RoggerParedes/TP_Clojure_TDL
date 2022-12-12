@@ -8,7 +8,7 @@
               :refer :all ])
 )
 
-(defn validate_extension_file [name_file]
+(defn validate-extension-file [name_file]
     ( let  [extension_file 
       (second (re-find #"(\.[a-zA-Z0-9]+)$" name_file))]
      ( if (= ".json" extension_file)
@@ -56,7 +56,7 @@
 (defn remove_character_ [a b c] 
   (swap! c assoc :value (string/replace (@c :value) a b)))
    
-(defn remove_character
+(defn remove-character
   "array_of_character_to_remove:Vector{:character character :newCharacter newCharacter} 
    atom_string:{:value value}"
   [array_of_character_to_remove atom_string]
@@ -85,8 +85,8 @@
 (defn grid-from-line [line]
   (let [new-line (clear-line line)]
     (if (= 81 (count new-line))
-      (let [seq-num (map #(Character/digit % 10) (seq new-line))]
-        (swap! matrix assoc :value (into (vector) (map #(into (vector) %) (partition 9 seq-num)))))
+      (let [seq-num (map #(Character/digit % 10) (seq new-line))] ; convierte a números todos los caracteres que ya sabemos son números
+        (swap! matrix assoc :value (into (vector) (map #(into (vector) %) (partition 9 seq-num))))) ; sepera la cadena de a 9 elementos y genera la matriz
       nil)
     )
   )
@@ -110,7 +110,7 @@
   (with-open [rdr (io/reader nameFile)]
     (doseq [line_ (line-seq rdr)]
       (swap! line assoc :value line_)
-      (remove_character vector_array line)
+      (remove-character vector_array line)
       (grid-from-line (get @line :value))
       (let [resolution (sudoku-solver (get @matrix :value))]
         (print-grid resolution channel_resolve_data)
