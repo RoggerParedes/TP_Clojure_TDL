@@ -3,7 +3,6 @@
   (:require [clojure.java.io :as io])
   (:require [clojure.string :as string])
   (:require [clojure.core.async
-             :as a
              :refer [>! <! put! go-loop chan]])
    (:require [tp-clojure-tdl.backtracking 
               :refer :all ])
@@ -107,7 +106,7 @@
       (put! channel (format-sudoku-line (grid i)))
       (recur (inc i)))))
 
-(defn read_line [nameFile]
+(defn process-file [nameFile]
   (with-open [rdr (io/reader nameFile)]
     (doseq [line_ (line-seq rdr)]
       (swap! line assoc :value line_)
@@ -123,20 +122,29 @@
   )
 )
 
-(defn init_service [] 
-  
-    ( loop []
-        (println "Ingrese la ruta del Archivo:")
-        (let [document (read-line) validate (is_empty_name document)] 
-            (if (true? (and validate (file_exists document)))
-              (read_line document)
-              (do (println "Ruta invalida") (recur))
-            )
-        )
-    )
-)
+(defn init-service []
+  (println "Ingrese la ruta del Archivo o escriba SALIR para terminar:")
+  (try
+    (let [line (clojure.string/trim (read-line))]
+      (prn "linea: " line)
+      (cond
+        (empty? line) (do (println "ERROR: no se ingresó nada.") (init-service))
+        (= (clojure.string/upper-case line) "SALIR") (do (print "Muchas gracias, vuelva prontos!") (flush))
+        (file_exists line) (do (process-file line))
+        :else
+        (do (println "Ruta invalida") (init-service))
+        ))
+    (catch Exception e
+      (println "ERROR ->" (clojure.string/trim
+                            (clojure.string/upper-case
+                              (let [msg-err (get (Throwable->map e) :cause)]
+                                (if (nil? msg-err) "desconocido" msg-err)))))
+      (init-service)))
+  )
+
 
 (defn -main
   [& args]
-  (init_service)
+  (init-service)
+  (System/exit 0)
 )

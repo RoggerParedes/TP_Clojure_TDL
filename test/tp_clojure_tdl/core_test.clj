@@ -2,16 +2,6 @@
   (:require [clojure.test :refer :all]
             [tp-clojure-tdl.core :refer :all]))
 
-(deftest b-test
-  (testing "If the Inut file is not empty then return true")
-  (is (= true (is_empty_name "data")))
-)
-
-(deftest c-test
-  (testing "If the Inut file is empty then return False")
-  (is (= false (is_empty_name "")))
-)
-
 (deftest d-test
   (testing "If we receive file with extension .json then, validate_extension_file return True"
     (is (= true (validate_extension_file "arch.json")))

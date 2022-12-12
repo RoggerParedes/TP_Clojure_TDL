@@ -17,8 +17,10 @@
   (if (some #{elem} v) true false)
   )
 
-(defn print-grid [grid]
+(comment
+  (defn print-grid [grid]
     (run! println grid))
+  )
 
 (defn is-in-row [grid row num]
   (is-in (get-row grid row) num))
