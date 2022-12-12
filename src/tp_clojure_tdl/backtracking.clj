@@ -17,10 +17,7 @@
   (if (some #{elem} v) true false)
   )
 
-(defn get-element [grid row col]
-  ((grid row) col))
-
-(defn print_grid [grid]
+(defn print-grid [grid]
     (run! println grid))
 
 (defn is-in-row [grid row num]
@@ -90,9 +87,9 @@
      ; We have reached the 8th row and 9th column, so it's finished!
      (and (= row (- N 1)) (= col N)) grid
      ; If column value becomes 9 we move to next row, and column start from 0
-     (= col N) (backtracking-sudoku-solver grid (inc row) 0)
+     (= col N) (recur grid (inc row) 0)
      ;  if the current position already contains value >0, we go for next column
-     (pos? (get-element grid row col)) (backtracking-sudoku-solver grid row (inc col))
+     (pos? (get-element grid row col)) (recur grid row (inc col))
      :else
      ; Recursive function to test every posible value, starting from 1
      ((fn try-number [num]
@@ -103,7 +100,7 @@
           ; If the path is a dead end, it backtracks and try the next number
           ; If is not posible to insert num, starts again with the next number
           (is-safe? grid row col num) (
-                                        let [result (sudoku-solver (replace-element grid row col num) row col)]
+                                        let [result (sudoku-solver (replace-element grid row col num) row (inc col))]
                                         (if (nil? result) (try-number (inc num)) result))
           :else
           (try-number (inc num))
