@@ -46,8 +46,8 @@
      ))
   )
 
-(defn file_exists [name_file]
-  (if (= true (.exists (io/file name_file)) ) true false)
+(defn file-exists? [name_file]
+  (if (.exists (io/file name_file)) true false)
 )
 
 (def line (atom {:value ""}))
@@ -91,6 +91,9 @@
     )
   )
 
+(defn grid-to-line [grid]
+  (reduce #(str %1 "|" %2) (map (partial apply str) grid)))
+
 (defn format-sudoku-line [arr]
   (let [line (mapv #(if (zero? %) " " %) arr)]
     (vec (flatten (conj (subvec line  0 3) '| (subvec line  3 6) '| (subvec line  6 9))))))
@@ -106,8 +109,8 @@
       (put! channel (format-sudoku-line (grid i)))
       (recur (inc i)))))
 
-(defn process-file [nameFile]
-  (with-open [rdr (io/reader nameFile)]
+(defn process-file [name-file]
+  (with-open [rdr (io/reader name-file)]
     (doseq [line_ (line-seq rdr)]
       (swap! line assoc :value line_)
       (remove-character vector_array line)
@@ -130,7 +133,7 @@
       (cond
         (empty? line) (do (println "ERROR: no se ingresó nada.") (init-service))
         (= (clojure.string/upper-case line) "SALIR") (do (print "Muchas gracias, vuelva prontos!") (flush))
-        (file_exists line) (do (process-file line))
+        (file-exists? line) (do (process-file line))
         :else
         (do (println "Ruta invalida") (init-service))
         ))
