@@ -21,6 +21,11 @@
   ) 
 )
 
+(deftest remove-file-extension-test
+  (testing "Remove file extension, letting only the name of the file"
+    (is (= "hola" (remove-file-extension "hola.txt")))
+    (is (= "hola" (remove-file-extension "hola.json")))
+    ))
 
 (deftest replace-in-str-test
   (testing "replace-in-str replace a substring for a given new string"
