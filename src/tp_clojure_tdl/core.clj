@@ -3,10 +3,16 @@
   (:require [clojure.java.io :as io])
   (:require [clojure.string :as string])
   (:require [clojure.core.async
-             :refer [>! <! put! go-loop chan]])
+             :refer [>! <! put! go-loop chan close!]])
    (:require [tp-clojure-tdl.backtracking 
               :refer :all ])
 )
+
+(def line (atom {:value ""}))
+(def matrix (atom {:value []}))
+(def total-solved (atom 0))
+(def output-filename (atom "salida.txt"))
+
 
 (defn validate-extension-file [name_file]
     ( let  [extension_file 
@@ -15,6 +21,8 @@
       true
       false
     )))
+
+
 
 (defn is_empty_name [doc]
   ( if (not-empty doc)
@@ -28,30 +36,40 @@
 (def channel_resolve_data (chan) )
 
 (def  thread_1
-  (future 
-    ( go-loop []
-     (let [x (<! channel_resolve_data)]
-       ;(Thread/sleep 1000) 
-       (>! channel_create_file x)
-       (recur))
-     )))
+  (future
+    (go-loop []
+      (when-some [x (<! channel_resolve_data)]
+        (>! channel_create_file x)
+        (recur)))
+    ))
 
+(comment
+  (def thread_2
+    (future
+      (go-loop []
+        (let [x (<! channel_create_file)]
+          ;(Thread/sleep 1000)
+          (spit "solutions.txt" (str x "\n") :append true)
+          ;(spit @output-filename (str x "\n") :append true)
+          (recur))
+        ))
+    )
+  )
 (def  thread_2
   (future
-    ( go-loop [] 
-     (let [x (<! channel_create_file)] 
-       ;(Thread/sleep 1000)
-       (spit "solutions.txt" (str x "\n") :append true)
-       (recur))
-     ))
-  )
+    ( go-loop []
+      (when-some [x (<! channel_create_file)]
+        ;(spit "solutions2.txt" (str x "\n") :append true)
+        (spit @output-filename (str x "\n") :append true)
+        (recur)))
+    ;))
+    ))
 
-(defn file-exists? [name_file]
-  (if (.exists (io/file name_file)) true false)
+(defn file-exists? [filename]
+  (if (.exists (io/file filename)) true false)
 )
 
-(def line (atom {:value ""}))
-(def matrix (atom {:value []}))
+
 
 (defn remove_character_ [a b c] 
   (swap! c assoc :value (string/replace (@c :value) a b)))
@@ -72,8 +90,7 @@
   (clojure.string/replace line
                           (re-pattern (if (< 1 (count to-be-replaced))
                                         to-be-replaced
-                                        (str "[" to-be-replaced "]")
-                                        ))
+                                        (str "[" to-be-replaced "]")))
                           replacement))
 
 (defn clear-line [line]
@@ -85,8 +102,21 @@
 (defn grid-from-line [line]
   (let [new-line (clear-line line)]
     (if (= 81 (count new-line))
-      (let [seq-num (map #(Character/digit % 10) (seq new-line))] ; convierte a números todos los caracteres que ya sabemos son números
-        (swap! matrix assoc :value (into (vector) (map #(into (vector) %) (partition 9 seq-num))))) ; sepera la cadena de a 9 elementos y genera la matriz
+      ; Convert to int all chars (that we already know they are numbers)
+      (let [seq-num (map #(Character/digit % 10) (seq new-line))]
+        ; Split the string into vectors of 9 elems (each line), and then generates the "matrix" or grid
+        (swap! matrix assoc :value (into (vector) (map #(into (vector) %) (partition 9 seq-num)))))
+      nil)
+    )
+  )
+
+(defn grid-from-line-v2 [line]
+  (let [new-line (clear-line line)]
+    (if (= 81 (count new-line))
+      ; Convert to int all chars (that we already know they are numbers)
+      (let [seq-num (map #(Character/digit % 10) (seq new-line))]
+        ; Split the string into vectors of 9 elems (each line), and then generates the "matrix" or grid
+        (into (vector) (map #(into (vector) %) (partition 9 seq-num))))
       nil)
     )
   )
@@ -96,8 +126,12 @@
 
 (defn format-sudoku-line [arr]
   (let [line (mapv #(if (zero? %) " " %) arr)]
-    (vec (flatten (conj (subvec line  0 3) '| (subvec line  3 6) '| (subvec line  6 9))))))
+  (vec (flatten (reduce #(vector %1 '| %2) (partition 3 line) )))))
 
+(defn format-sudoku-line-v2 [arr]
+  (let [line (mapv #(if (zero? %) " " %) arr)]
+    (vec (flatten (conj (subvec line  0 3) '| (subvec line  3 6) '| (subvec line  6 9)))))
+  )
 (defn print-grid [grid channel]
   (loop [i 0]
     (when (< i N)
@@ -109,31 +143,89 @@
       (put! channel (format-sudoku-line (grid i)))
       (recur (inc i)))))
 
-(defn process-file [name-file]
-  (with-open [rdr (io/reader name-file)]
+(defn print-grid-v2 [grid]
+  (loop [i 0]
+    (when (< i N)
+      (when (and (zero? (mod i 3)) (pos? i)) (println (vec (repeat 11 '-))))
+      (println (format-sudoku-line (grid i)))
+      (recur (inc i)))))
+
+
+(defn remove-file-extension [filename]
+  (replace-in-str filename (first (re-find #"(\.[a-zA-Z0-9]+)$" filename)) ""))
+(defn process-file-v2 [filename]
+  ;(prn "filename:" filename)
+  (swap! output-filename (partial str (remove-file-extension filename)))
+  ;(prn @output-filename)
+  (with-open [rdr (io/reader filename)]
+    (doseq [line_ (line-seq rdr)]
+      (swap! line assoc :value line_)
+      ;(prn "line value:" (get @line :value))
+      ;(remove-character vector_array line)
+      (let [grid (grid-from-line-v2 (get @line :value))]
+        (if (empty? grid)
+          (do
+            (println (apply str (repeat 25 '*)))
+            (printf "La línea %s no pertenece a un sudoku válido%n" (get @line :value)) (flush)
+            (println (apply str (repeat 25 '*))))
+          (let [grid-solved (sudoku-solver grid)]
+            (if (nil? grid-solved)
+              (do
+                (println (apply str (repeat 25 '*)))
+                (printf "La línea %s no pertenece a un sudoku válido%n" (get @line :value)) (flush)
+                (println (apply str (repeat 25 '*))))
+              (do
+                ; console output
+                (println (apply str (repeat 25 '*))) ; separator
+                (println "Sudoku original:")
+                (print-grid-v2 grid)
+                (println "Sudoku resuelto:")
+                (print-grid-v2 grid-solved)
+                (println (apply str (repeat 25 '*))) ; separator
+                ; write in file
+                (put! channel_resolve_data (grid-to-line grid-solved))
+                ; increment counter
+                (swap! total-solved inc)
+                )
+              )
+            )
+          )))))
+
+(defn close-app [state]
+  (when (= state true)
+    (println "Cerrando Aplicacion")
+    (close! channel_create_file)
+    (close! channel_resolve_data)
+    (future-cancel thread_1)
+    (future-cancel thread_2)
+    (println "Fin"))
+  )
+
+(defn process-file [filename]
+  (with-open [rdr (io/reader filename)]
     (doseq [line_ (line-seq rdr)]
       (swap! line assoc :value line_)
       (remove-character vector_array line)
       (grid-from-line (get @line :value))
       (let [resolution (sudoku-solver (get @matrix :value))]
         (print-grid resolution channel_resolve_data)
-        (let [separator (vec (repeat 15 '*))] 
+        (let [separator (vec (repeat 15 '*))]
           (println separator)
           (put! channel_resolve_data separator)))
       ;)
+      )
     )
   )
-)
 
 (defn init-service []
   (println "Ingrese la ruta del Archivo o escriba SALIR para terminar:")
   (try
     (let [line (clojure.string/trim (read-line))]
-      (prn "linea: " line)
+      ;(prn "linea: " line)
       (cond
         (empty? line) (do (println "ERROR: no se ingresó nada.") (init-service))
         (= (clojure.string/upper-case line) "SALIR") (do (print "Muchas gracias, vuelva prontos!") (flush))
-        (file-exists? line) (do (process-file line))
+        (file-exists? line) (do (process-file-v2 line) (printf "Cantidad de sudokus resueltos: %d%n" @total-solved))
         :else
         (do (println "Ruta invalida") (init-service))
         ))
@@ -149,5 +241,6 @@
 (defn -main
   [& args]
   (init-service)
-  (System/exit 0)
+  (close-app true)
+  ;(System/exit 0)
 )
