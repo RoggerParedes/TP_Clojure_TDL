@@ -13,7 +13,6 @@
 (def total-solved (atom 0))
 (def output-filename (atom "salida.txt"))
 
-
 (defn validate-extension-file [name_file]
     ( let  [extension_file 
       (second (re-find #"(\.[a-zA-Z0-9]+)$" name_file))]
@@ -21,15 +20,6 @@
       true
       false
     )))
-
-
-
-(defn is_empty_name [doc]
-  ( if (not-empty doc)
-    true
-    false
-  )
-)
 
 (def channel_create_file (chan) )
 
@@ -43,33 +33,17 @@
         (recur)))
     ))
 
-(comment
-  (def thread_2
-    (future
-      (go-loop []
-        (let [x (<! channel_create_file)]
-          ;(Thread/sleep 1000)
-          (spit "solutions.txt" (str x "\n") :append true)
-          ;(spit @output-filename (str x "\n") :append true)
-          (recur))
-        ))
-    )
-  )
 (def  thread_2
   (future
     ( go-loop []
       (when-some [x (<! channel_create_file)]
-        ;(spit "solutions2.txt" (str x "\n") :append true)
         (spit @output-filename (str x "\n") :append true)
         (recur)))
-    ;))
     ))
 
 (defn file-exists? [filename]
   (if (.exists (io/file filename)) true false)
 )
-
-
 
 (defn remove_character_ [a b c] 
   (swap! c assoc :value (string/replace (@c :value) a b)))
@@ -81,10 +55,6 @@
   (doseq [res array_of_character_to_remove]
     (remove_character_ (get res :character) 
                        (get res :newCharacter) atom_string)))
-
-(def vector_array (vector 
-         {:character "]" :newCharacter ""} 
-         {:character "[" :newCharacter ""}))
 
 (defn replace-in-str [line to-be-replaced replacement]
   (clojure.string/replace line
@@ -128,21 +98,6 @@
   (let [line (mapv #(if (zero? %) " " %) arr)]
   (vec (flatten (reduce #(vector %1 '| %2) (partition 3 line) )))))
 
-(defn format-sudoku-line-v2 [arr]
-  (let [line (mapv #(if (zero? %) " " %) arr)]
-    (vec (flatten (conj (subvec line  0 3) '| (subvec line  3 6) '| (subvec line  6 9)))))
-  )
-(defn print-grid [grid channel]
-  (loop [i 0]
-    (when (< i N)
-      (when (and (zero? (mod i 3)) (pos? i)) 
-        (let [separator (vec (repeat 11 '-))]
-          (println separator)
-          (put! channel separator)))
-      (println (format-sudoku-line (grid i)))
-      (put! channel (format-sudoku-line (grid i)))
-      (recur (inc i)))))
-
 (defn print-grid-v2 [grid]
   (loop [i 0]
     (when (< i N)
@@ -154,14 +109,10 @@
 (defn remove-file-extension [filename]
   (replace-in-str filename (first (re-find #"(\.[a-zA-Z0-9]+)$" filename)) ""))
 (defn process-file-v2 [filename]
-  ;(prn "filename:" filename)
   (swap! output-filename (partial str (remove-file-extension filename)))
-  ;(prn @output-filename)
   (with-open [rdr (io/reader filename)]
     (doseq [line_ (line-seq rdr)]
       (swap! line assoc :value line_)
-      ;(prn "line value:" (get @line :value))
-      ;(remove-character vector_array line)
       (let [grid (grid-from-line-v2 (get @line :value))]
         (if (empty? grid)
           (do
@@ -202,30 +153,13 @@
     (println "Fin"))
   )
 
-(defn process-file [filename]
-  (with-open [rdr (io/reader filename)]
-    (doseq [line_ (line-seq rdr)]
-      (swap! line assoc :value line_)
-      (remove-character vector_array line)
-      (grid-from-line (get @line :value))
-      (let [resolution (sudoku-solver (get @matrix :value))]
-        (print-grid resolution channel_resolve_data)
-        (let [separator (vec (repeat 15 '*))]
-          (println separator)
-          (put! channel_resolve_data separator)))
-      ;)
-      )
-    )
-  )
-
 (defn init-service []
   (println "Ingrese la ruta del Archivo o escriba SALIR para terminar:")
   (try
     (let [line (clojure.string/trim (read-line))]
-      ;(prn "linea: " line)
       (cond
         (empty? line) (do (println "ERROR: no se ingresó nada.") (init-service))
-        (= (clojure.string/upper-case line) "SALIR") (do (print "Muchas gracias, vuelva prontos!") (flush))
+        (= (clojure.string/upper-case line) "SALIR") (do (print "Muchas gracias, vuelva pronto!") (flush))
         (file-exists? line) (do (process-file-v2 line) (printf "Cantidad de sudokus resueltos: %d%n" @total-solved))
         :else
         (do (println "Ruta invalida") (init-service))
@@ -243,5 +177,4 @@
   [& args]
   (init-service)
   (close-app true)
-  ;(System/exit 0)
 )
