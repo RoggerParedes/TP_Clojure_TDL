@@ -9,17 +9,8 @@
 )
 
 (def line (atom {:value ""}))
-(def matrix (atom {:value []}))
 (def total-solved (atom 0))
 (def output-filename (atom "salida.txt"))
-
-(defn validate-extension-file [name_file]
-    ( let  [extension_file 
-      (second (re-find #"(\.[a-zA-Z0-9]+)$" name_file))]
-     ( if (= ".json" extension_file)
-      true
-      false
-    )))
 
 (def channel_create_file (chan) )
 
@@ -45,17 +36,6 @@
   (if (.exists (io/file filename)) true false)
 )
 
-(defn remove_character_ [a b c] 
-  (swap! c assoc :value (string/replace (@c :value) a b)))
-   
-(defn remove-character
-  "array_of_character_to_remove:Vector{:character character :newCharacter newCharacter} 
-   atom_string:{:value value}"
-  [array_of_character_to_remove atom_string]
-  (doseq [res array_of_character_to_remove]
-    (remove_character_ (get res :character) 
-                       (get res :newCharacter) atom_string)))
-
 (defn replace-in-str [line to-be-replaced replacement]
   (clojure.string/replace line
                           (re-pattern (if (< 1 (count to-be-replaced))
@@ -75,17 +55,6 @@
       ; Convert to int all chars (that we already know they are numbers)
       (let [seq-num (map #(Character/digit % 10) (seq new-line))]
         ; Split the string into vectors of 9 elems (each line), and then generates the "matrix" or grid
-        (swap! matrix assoc :value (into (vector) (map #(into (vector) %) (partition 9 seq-num)))))
-      nil)
-    )
-  )
-
-(defn grid-from-line-v2 [line]
-  (let [new-line (clear-line line)]
-    (if (= 81 (count new-line))
-      ; Convert to int all chars (that we already know they are numbers)
-      (let [seq-num (map #(Character/digit % 10) (seq new-line))]
-        ; Split the string into vectors of 9 elems (each line), and then generates the "matrix" or grid
         (into (vector) (map #(into (vector) %) (partition 9 seq-num))))
       nil)
     )
@@ -98,7 +67,7 @@
   (let [line (mapv #(if (zero? %) " " %) arr)]
   (vec (flatten (reduce #(vector %1 '| %2) (partition 3 line) )))))
 
-(defn print-grid-v2 [grid]
+(defn print-grid [grid]
   (loop [i 0]
     (when (< i N)
       (when (and (zero? (mod i 3)) (pos? i)) (println (vec (repeat 11 '-))))
@@ -113,7 +82,7 @@
   (with-open [rdr (io/reader filename)]
     (doseq [line_ (line-seq rdr)]
       (swap! line assoc :value line_)
-      (let [grid (grid-from-line-v2 (get @line :value))]
+      (let [grid (grid-from-line (get @line :value))]
         (if (empty? grid)
           (do
             (println (apply str (repeat 25 '*)))
@@ -129,9 +98,9 @@
                 ; console output
                 (println (apply str (repeat 25 '*))) ; separator
                 (println "Sudoku original:")
-                (print-grid-v2 grid)
+                (print-grid grid)
                 (println "Sudoku resuelto:")
-                (print-grid-v2 grid-solved)
+                (print-grid grid-solved)
                 (println (apply str (repeat 25 '*))) ; separator
                 ; write in file
                 (put! channel_resolve_data (grid-to-line grid-solved))

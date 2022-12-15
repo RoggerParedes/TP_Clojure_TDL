@@ -2,25 +2,6 @@
   (:require [clojure.test :refer :all]
             [tp-clojure-tdl.core :refer :all]))
 
-(deftest validate-extension-file-test
-  (testing "Validate a file extension to be .json. If not, returns false"
-    (is (= true (validate-extension-file "arch.json")))
-    (is (= false (validate-extension-file "arch.html")))
-  )
-)
-
-(deftest remove-character-test
-  (testing "I want to remove the character '[' and ']'"
-    (let [line (atom {:value "casa[]"})
-          myVect (vector 
-         {:character "]" :newCharacter ""} 
-         {:character "[" :newCharacter ""}
-        )] (do
-             (remove-character myVect line)
-             (is (= "casa" (get @line :value)))))
-  ) 
-)
-
 (deftest remove-file-extension-test
   (testing "Remove file extension, letting only the name of the file"
     (is (= "hola" (remove-file-extension "hola.txt")))
