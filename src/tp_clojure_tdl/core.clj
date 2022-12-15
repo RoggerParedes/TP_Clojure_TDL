@@ -77,7 +77,8 @@
 
 (defn remove-file-extension [filename]
   (replace-in-str filename (first (re-find #"(\.[a-zA-Z0-9]+)$" filename)) ""))
-(defn process-file-v2 [filename]
+
+(defn process-file [filename]
   (swap! output-filename (partial str (remove-file-extension filename)))
   (with-open [rdr (io/reader filename)]
     (doseq [line_ (line-seq rdr)]
@@ -129,7 +130,7 @@
       (cond
         (empty? line) (do (println "ERROR: no se ingresó nada.") (init-service))
         (= (clojure.string/upper-case line) "SALIR") (do (print "Muchas gracias, vuelva pronto!") (flush))
-        (file-exists? line) (do (process-file-v2 line) (printf "Cantidad de sudokus resueltos: %d%n" @total-solved))
+        (file-exists? line) (do (process-file line) (printf "Cantidad de sudokus resueltos: %d%n" @total-solved))
         :else
         (do (println "Ruta invalida") (init-service))
         ))
