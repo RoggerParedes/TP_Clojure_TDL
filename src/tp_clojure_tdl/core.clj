@@ -198,6 +198,7 @@
     (close! channel_resolve_data)
     (future-cancel thread_1)
     (future-cancel thread_2)
+    (shutdown-agents)
     (println "Fin"))
   )
 
